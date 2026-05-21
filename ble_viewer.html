@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>BLE UID Viewer</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #log { white-space: pre-wrap; border: 1px solid #ccc; padding: 10px; margin-top: 20px; height: 200px; overflow-y: auto; }
+    button { font-size: 18px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>BLE UID Viewer</h1>
+  <button id="connect">ESP32 に接続</button>
+  <div id="status"></div>
+  <div id="log"></div>
+
+  <script>
+    const SERVICE_UUID = '12345678-1234-1234-1234-1234567890ab';
+    const CHAR_UUID    = 'abcd1234-5678-90ab-cdef-1234567890ab';
+
+    const statusEl = document.getElementById('status');
+    const logEl = document.getElementById('log');
+    const btn = document.getElementById('connect');
+
+    function log(msg) {
+      const time = new Date().toLocaleTimeString();
+      logEl.textContent += `[${time}] ${msg}\n`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    btn.addEventListener('click', async () => {
+      try {
+        statusEl.textContent = 'デバイスを検索中…';
+
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ name: 'ESP32-Child' }],
+          optionalServices: [SERVICE_UUID]
+        });
+
+        statusEl.textContent = '接続中…';
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService(SERVICE_UUID);
+        const characteristic = await service.getCharacteristic(CHAR_UUID);
+
+        await characteristic.startNotifications();
+        statusEl.textContent = '接続完了！タグをかざしてください。';
+
+        characteristic.addEventListener('characteristicvaluechanged', event => {
+          const value = new TextDecoder().decode(event.target.value);
+          log(`UID: ${value}`);
+        });
+
+        log('接続しました。');
+      } catch (e) {
+        statusEl.textContent = 'エラー: ' + e;
+        log('エラー: ' + e);
+      }
+    });
+  </script>
+</body>
+</html>
