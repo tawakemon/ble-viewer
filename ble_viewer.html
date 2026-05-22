@@ -49,14 +49,69 @@
         characteristic.addEventListener('characteristicvaluechanged', event => {
           const value = new TextDecoder().decode(event.target.value);
           log(`UID: ${value}`);
+           sendToGAS(value); 
         });
 
-        log('接続しました。');
       } catch (e) {
         statusEl.textContent = 'エラー: ' + e;
         log('エラー: ' + e);
       }
     });
+    // --- UID → 名前辞書 ---
+const uidToName = {
+  "04AABBCCDD": "田中",
+  "04EE112233": "佐藤",
+  "0455667788": "鈴木",
+  "04AA11BB22": "山田",
+  "04CC33DD44": "高橋",
+  "04EE55FF66": "伊藤",
+  "0401020304": "中村",
+  "04ABCDEF12": "小林",
+  "04FEDCBA98": "加藤",
+  "0411223344": "渡辺"
+};
+
+// --- 取り出し / 収納ステータス ---
+let lastStatus = {};
+
+function getStatus(uid) {
+  if (!lastStatus[uid] || lastStatus[uid] === "in") {
+    lastStatus[uid] = "out";
+    return "取り出し";
+  } else {
+    lastStatus[uid] = "in";
+    return "収納";
+  }
+}
+
+// --- タイムスタンプ ---
+function getTimestamp() {
+  return new Date().toLocaleString("ja-JP");
+}
+
+// --- GAS 送信 ---
+const GAS_URL = "★ここにGASのWebアプリURLを入れる★";
+
+function sendToGAS(uid) {
+  const name = uidToName[uid] || "不明";
+  const status = getStatus(uid);
+  const timestamp = getTimestamp();
+
+  const data = {
+    uid: uid,
+    name: name,
+    status: status,
+    timestamp: timestamp
+  };
+
+  fetch(GAS_URL, {
+    method: "POST",
+    body: JSON.stringify(data)
+  })
+  .then(() => log(`GAS送信成功: ${JSON.stringify(data)}`))
+  .catch(err => log(`GAS送信エラー: ${err}`));
+}
+
   </script>
 </body>
 </html>
