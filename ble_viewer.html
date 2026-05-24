@@ -59,12 +59,12 @@
     });
     // --- UID → 名前辞書 ---
 const uidToName = {
-  "04AABBCCDD": "田中",
-  "04EE112233": "佐藤",
-  "0455667788": "鈴木",
-  "04AA11BB22": "山田",
-  "04CC33DD44": "高橋",
-  "04EE55FF66": "伊藤",
+  "0457D0827E2491": "1課_小池",
+  "0457CF827E2491": "1課_豊口",
+  "0457CE827E2491": "1課_三原",
+  "0457CD827E2491": "2課_小暮",
+  "0457CC827E2491": "2課_時岡",
+  "0457CB827E2491": "1課_齋藤",
   "0401020304": "中村",
   "04ABCDEF12": "小林",
   "04FEDCBA98": "加藤",
@@ -90,7 +90,7 @@ function getTimestamp() {
 }
 
 // --- GAS 送信 ---
-const GAS_URL = "★ここにGASのWebアプリURLを入れる★";
+const GAS_URL = "https://script.google.com/a/macros/anams.co.jp/s/AKfycbzqtgBMT3_mCVUtAU0GtIwnwsPtcFabVmZwkDCjYhip5mVO1SOvW3Vx7_LAq_ak5bCz/exec;
 
 function sendToGAS(uid) {
   const name = uidToName[uid] || "不明";
